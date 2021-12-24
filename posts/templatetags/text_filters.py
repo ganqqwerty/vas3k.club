@@ -15,6 +15,12 @@ from common.markdown.markdown import markdown_text
 
 register = template.Library()
 
+# r§ from the python standard library 3.9.0
+# https://docs.python.org/3/library/stdtypes.html#str.removesuffix
+def removesuffix(str, suffix):
+    if str.endswith(suffix) and suffix:
+        return str[:-len(suffix)]
+    return str
 
 @register.filter(is_safe=True)
 def nl_to_p(text):
@@ -44,14 +50,13 @@ def cool_number(value, num_decimals=1):
     """
     11500 -> 11.5K, etc
     """
-    int_value = int(value)
     formatted_number = "{{:.{}f}}".format(num_decimals)
     if int_value < 1000:
         return str(int_value)
     elif int_value < 1000000:
-        return formatted_number.format(int_value / 1000.0).rstrip("0.") + "K"
+        return removesuffix(formatted_number.format(int_value / 1000.0), ".0") + "K"
     else:
-        return formatted_number.format(int_value / 1000000.0).rstrip("0.") + "M"
+        return removesuffix(formatted_number.format(int_value / 1000000.0), ".0") + "M"
 
 
 @register.filter
